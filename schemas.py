@@ -12,7 +12,7 @@ Model name is converted to lowercase for the collection name:
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Literal
 
 # Example schemas (replace with your own):
 
@@ -38,11 +38,17 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# SaaS.ai specific schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Idea(BaseModel):
+    """Represents a submitted idea from the user"""
+    text: str = Field(..., description="Raw idea text from the user")
+
+class PrototypeVersion(BaseModel):
+    """Represents a generated prototype version for an idea"""
+    idea_id: str = Field(..., description="Associated idea document ID")
+    idea_text: str = Field(..., description="Original idea text snapshot")
+    version: int = Field(..., ge=1, description="Monotonic version number per idea")
+    site_type: Literal["landing","dashboard","ecommerce","blog"] = Field(..., description="Prototype type")
+    code: str = Field(..., description="Single-file prototype code (HTML + Tailwind + optional JSX via Babel)")
+    notes: Optional[str] = Field(None, description="Additional generation notes or recommendations")
